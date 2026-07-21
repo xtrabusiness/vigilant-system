@@ -349,20 +349,17 @@ body{background:var(--kion-light);color:var(--text);line-height:1.5;overflow-x:h
 
 <script>
 // ═══════════════════════════════════════════════════════════════════════════════
-// ⚠️  ضع رابط Google Apps Script Web App هنا  ⚠️
+// ⚠️  رابط Google Apps Script Web App  ⚠️
 // ═══════════════════════════════════════════════════════════════════════════════
 const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbyaKU95udf5hdzivBB9_0ACxmHSeDh4y5LFYkSnKzrrreycUlzimyik8SUFT2MzaTedSA/exec';
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // ═══════════════════════════════════════════════════════════
 // ALLOWED USERS — 12 user (10 reps + 2 admin)
-// عدل الأسماء والأرقام حسب فريقك
 // ═══════════════════════════════════════════════════════════
 const ALLOWED_USERS = [
-  // Admin
   { name: 'أحمد عبد الفتاح', phone: '01026068711', role: 'admin' },
   { name: 'Admin 2',          phone: '01xxxxxxxx',  role: 'admin' },
-  // Reps (عدل الأسماء والأرقام)
   { name: 'مندوب 1', phone: '01000000001', role: 'rep' },
   { name: 'مندوب 2', phone: '01000000002', role: 'rep' },
   { name: 'مندوب 3', phone: '01000000003', role: 'rep' },
@@ -375,9 +372,6 @@ const ALLOWED_USERS = [
   { name: 'مندوب 10', phone: '01000000010', role: 'rep' }
 ];
 
-// ═══════════════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════════════
 let currentRep = localStorage.getItem('kion_rep_name') || '';
 let currentRepPhone = localStorage.getItem('kion_rep_phone') || '';
 let clients = JSON.parse(localStorage.getItem('kion_clients_v2') || '[]');
@@ -387,9 +381,6 @@ let currentFilter = 'all';
 let currentRating = 0;
 let isOnline = navigator.onLine;
 
-// ═══════════════════════════════════════════════════════════
-// PRODUCTS CATALOG
-// ═══════════════════════════════════════════════════════════
 const products = [
 {cat:'مفاتيح',items:[
 {code:'K-001/002',name:'مفتاح 16 امبير (1-2 gang)',w:37.87,c:44.63},
@@ -458,9 +449,6 @@ const products = [
 ]}
 ];
 
-// ═══════════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
     if (currentRep && currentRepPhone && findUser(currentRep, currentRepPhone)) {
         showApp();
@@ -484,9 +472,6 @@ function findUser(name, phone) {
     return ALLOWED_USERS.find(u => u.name === name.trim() && u.phone === phone.trim());
 }
 
-// ═══════════════════════════════════════════════════════════
-// LOGIN
-// ═══════════════════════════════════════════════════════════
 function doLogin() {
     const name = document.getElementById('loginName').value.trim();
     const phone = document.getElementById('loginPhone').value.trim();
@@ -532,9 +517,6 @@ function logout() {
     document.getElementById('loginPhone').value = '';
 }
 
-// ═══════════════════════════════════════════════════════════
-// NAVIGATION
-// ═══════════════════════════════════════════════════════════
 function showPage(id, tabEl) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -554,9 +536,6 @@ function toast(msg) {
     setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// ═══════════════════════════════════════════════════════════
-// GPS
-// ═══════════════════════════════════════════════════════════
 function getGPS() {
     const box = document.getElementById('gpsBox');
     box.textContent = 'جاري التحديد...';
@@ -574,9 +553,6 @@ function getGPS() {
     }
 }
 
-// ═══════════════════════════════════════════════════════════
-// RATING & QUAL
-// ═══════════════════════════════════════════════════════════
 function setStar(n) {
     currentRating = n;
     document.querySelectorAll('#starRating .star').forEach(s => {
@@ -593,9 +569,6 @@ function setQual(el) {
     currentQual = el.dataset.val;
 }
 
-// ═══════════════════════════════════════════════════════════
-// SAVE CLIENT — 18 columns for Google Sheet
-// ═══════════════════════════════════════════════════════════
 function saveClient() {
     if (!currentRep) { toast('❌ سجل دخولك أولاً'); return; }
 
@@ -615,37 +588,29 @@ function saveClient() {
 
     const now = new Date();
     const client = {
-        // 18 columns matching Google Sheet exactly:
-        id: Date.now(),                                    // A: ID (auto)
-        date: now.toLocaleString('ar-EG'),                 // B: التاريخ
-        rep: currentRep,                                   // C: اسم المندوب
-        name: name,                                        // D: اسم العميل
-        type: type,                                        // E: النشاط
-        specialty: document.getElementById('specialty').value, // F: التخصص
-        phone: document.getElementById('phone').value,     // G: الهاتف
-        area: area,                                        // H: المنطقه
-        address: document.getElementById('address').value, // I: العنوان
-        gps: currentGPS || 'لم يتم التحديد',               // J: GPS
-        nextVisitDate: nextVisitDate,                      // K: تاريخ الزياره القاتدمه
-        nextAction: nextAction,                            // L: الاجراء
-        compName: document.getElementById('compName').value,   // M: المنافس
-        compPrice: document.getElementById('compPrice').value, // N: سعر المنافس
-        compWeak: document.getElementById('compWeak').value,   // O: نقطة الضعف
-        notes: document.getElementById('notes').value,     // P: الملاحظات
-        qual: currentQual,                                 // Q: التصنيف
-        rating: currentRating,                             // R: التقييم
+        id: Date.now(),
+        date: now.toLocaleString('ar-EG'),
+        rep: currentRep,
+        name: name,
+        type: type,
+        specialty: document.getElementById('specialty').value,
+        phone: document.getElementById('phone').value,
+        area: area,
+        address: document.getElementById('address').value,
+        gps: currentGPS || 'لم يتم التحديد',
+        nextVisitDate: nextVisitDate,
+        nextAction: nextAction,
+        compName: document.getElementById('compName').value,
+        compPrice: document.getElementById('compPrice').value,
+        compWeak: document.getElementById('compWeak').value,
+        notes: document.getElementById('notes').value,
+        qual: currentQual,
+        rating: currentRating,
         synced: false
     };
 
-    // 1. Save locally immediately
     clients.push(client);
     localStorage.setItem('kion_clients_v2', JSON.stringify(clients));
-
-    // 2. Try cloud sync
-    if (SHEETS_API_URL === 'https://script.google.com/macros/s/AKfycbyaKU95udf5hdzivBB9_0ACxmHSeDh4y5LFYkSnKzrrreycUlzimyik8SUFT2MzaTedSA/exec') {
-        finishSave(client, '✅ تم الحفظ محلياً (لم يتم ربط Google Sheets بعد — انظر التعليمات في الكود)');
-        return;
-    }
 
     if (!navigator.onLine) {
         finishSave(client, '⚠️ تم الحفظ محلياً (لا يوجد إنترنت — سيتم المزامنة لاحقاً)');
@@ -654,14 +619,18 @@ function saveClient() {
 
     fetch(SHEETS_API_URL, {
         method: 'POST',
-        mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(client)
-    }).then(() => {
+    })
+    .then(res => res.text())
+    .then(text => {
+        console.log('Server response:', text);
         client.synced = true;
         localStorage.setItem('kion_clients_v2', JSON.stringify(clients));
         finishSave(client, '✅ تم الحفظ والمزامنة مع Google Sheets');
-    }).catch(() => {
+    })
+    .catch(err => {
+        console.error('Sync error:', err);
         finishSave(client, '⚠️ تم الحفظ محلياً فقط — اضغط 🔄 للمزامنة لاحقاً');
     });
 
@@ -683,14 +652,7 @@ function resetForm() {
     document.getElementById('starLabel').textContent = 'اضغط على النجوم للتقييم';
 }
 
-// ═══════════════════════════════════════════════════════════
-// SYNC
-// ═══════════════════════════════════════════════════════════
 function syncPending() {
-    if (SHEETS_API_URL === 'https://script.google.com/macros/s/AKfycbyaKU95udf5hdzivBB9_0ACxmHSeDh4y5LFYkSnKzrrreycUlzimyik8SUFT2MzaTedSA/exec') {
-        toast('⚠️ لم يتم ربط Google Sheets بعد — اتبع خطوات التركيب في README');
-        return;
-    }
     if (!navigator.onLine) { toast('⚠️ لا يوجد إنترنت'); return; }
 
     let pending = clients.filter(c => !c.synced);
@@ -704,13 +666,18 @@ function syncPending() {
     let promises = pending.map(c => {
         return fetch(SHEETS_API_URL, {
             method: 'POST',
-            mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(c)
-        }).then(() => {
+        })
+        .then(res => res.text())
+        .then(text => {
+            console.log('Sync response for', c.name, ':', text);
             c.synced = true;
             done++;
-        }).catch(() => {});
+        })
+        .catch(err => {
+            console.error('Sync failed for', c.name, ':', err);
+        });
     });
 
     Promise.all(promises).then(() => {
@@ -721,9 +688,6 @@ function syncPending() {
     });
 }
 
-// ═══════════════════════════════════════════════════════════
-// DEMO
-// ═══════════════════════════════════════════════════════════
 function addDemoClient() {
     if (!currentRep) { toast('❤️ سجل دخولك أولاً'); return; }
     const demo = {
@@ -753,9 +717,6 @@ function addDemoClient() {
     renderList(); renderDash(); renderHandoverSelect();
 }
 
-// ═══════════════════════════════════════════════════════════
-// LIST & FILTER
-// ═══════════════════════════════════════════════════════════
 function setFilter(f, el) {
     currentFilter = f;
     document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
@@ -801,9 +762,6 @@ function deleteClient(id) {
     toast('تم الحذف');
 }
 
-// ═══════════════════════════════════════════════════════════
-// DASHBOARD
-// ═══════════════════════════════════════════════════════════
 function renderDash() {
     const myClients = clients.filter(c => c.rep === currentRep);
     const total = myClients.length;
@@ -823,9 +781,6 @@ function renderDash() {
         .join('') || 'لا بيانات';
 }
 
-// ═══════════════════════════════════════════════════════════
-// CATALOG
-// ═══════════════════════════════════════════════════════════
 function renderCatalog() {
     const q = document.getElementById('catSearch').value.trim().toLowerCase();
     const container = document.getElementById('catalogContent');
@@ -843,9 +798,6 @@ function renderCatalog() {
     container.innerHTML = html || '<div class="empty-state">لا توجد نتائج</div>';
 }
 
-// ═══════════════════════════════════════════════════════════
-// HANDOVER
-// ═══════════════════════════════════════════════════════════
 function renderHandoverSelect() {
     const sel = document.getElementById('hoSelect');
     sel.innerHTML = '<option value="">-- اختر عميلاً --</option>';
@@ -884,14 +836,10 @@ function loadHandover(id) {
     document.getElementById('hoSigDate').textContent = 'التاريخ: ' + new Date().toLocaleDateString('ar-EG');
 }
 
-// ═══════════════════════════════════════════════════════════
-// EXPORT EXCEL — MIME type صحيح يفتح في Excel مباشرة
-// ═══════════════════════════════════════════════════════════
 function exportExcel() {
     const myClients = clients.filter(c => c.rep === currentRep);
     if (!myClients.length) { toast('لا يوجد عملاء للتصدير'); return; }
 
-    // 18 headers matching Google Sheet exactly
     const headers = ['ID','التاريخ','اسم المندوب','اسم العميل','النشاط','التخصص','الهاتف','المنطقه','العنوان','GPS','تاريخ الزياره القاتدمه','الاجراء','المنافس','سعر المنافس','نقطة الضعف','الملاحظات','التصنيف','التقييم'];
 
     let html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
@@ -900,24 +848,9 @@ function exportExcel() {
 
     myClients.forEach(c => {
         const row = [
-            c.id,
-            c.date,
-            c.rep,
-            c.name,
-            c.type,
-            c.specialty || '',
-            c.phone || '',
-            c.area,
-            c.address || '',
-            c.gps || '',
-            c.nextVisitDate || '',
-            c.nextAction || '',
-            c.compName || '',
-            c.compPrice || '',
-            c.compWeak || '',
-            c.notes || '',
-            c.qual,
-            c.rating
+            c.id, c.date, c.rep, c.name, c.type, c.specialty || '', c.phone || '',
+            c.area, c.address || '', c.gps || '', c.nextVisitDate || '', c.nextAction || '',
+            c.compName || '', c.compPrice || '', c.compWeak || '', c.notes || '', c.qual, c.rating
         ];
         html += '<tr>' + row.map(cell => '<td>' + (cell !== undefined && cell !== null ? cell : '') + '</td>').join('') + '</tr>';
     });
@@ -944,9 +877,6 @@ function clearAll() {
     toast('تم المسح');
 }
 
-// ═══════════════════════════════════════════════════════════
-// SERVICE WORKER REGISTRATION (PWA)
-// ═══════════════════════════════════════════════════════════
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').then(() => {
         console.log('SW registered');
