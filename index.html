@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a1a1a">
+<title>KION Field Survey - Cloud Feeder</title>
+<style>
+:root{--kion-black:#1a1a1a;--kion-dark:#2d2d2d;--kion-gold:#c9a96e;--kion-gold-light:#e8d5a3;--kion-gray:#6c6c6c;--kion-light:#f5f5f0;--success:#2d6a4f;--warn:#b35900;--info:#1e3a5f;--card:#ffffff;--text:#1a1a1a;--muted:#6c6c6c;--border:#e0ddd5;--shadow:0 2px 16px rgba(0,0,0,0.10)}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,sans-serif}
+body{background:var(--kion-light);color:var(--text);line-height:1.5;overflow-x:hidden}
+.app-header{background:var(--kion-black);color:#fff;padding:16px 18px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.app-header h1{font-size:20px;display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:1px}
+.app-header .subtitle{font-size:12px;opacity:.7;margin-top:3px;color:var(--kion-gold-light)}
+.nav-tabs{display:flex;background:#fff;border-bottom:2px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.nav-tabs::-webkit-scrollbar{display:none}
+.nav-tab{flex:1;min-width:60px;padding:14px 6px;text-align:center;font-size:12px;font-weight:700;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;transition:.2s}
+.nav-tab.active{color:var(--kion-gold);border-bottom-color:var(--kion-gold)}
+.page{display:none;padding:18px;padding-bottom:90px;max-width:800px;margin:0 auto}
+.page.active{display:block}
+.card{background:var(--card);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.card-title{font-size:15px;font-weight:800;margin-bottom:14px;color:var(--kion-black);display:flex;align-items:center;gap:8px}
+.card-title .icon{color:var(--kion-gold);font-size:18px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;background:#fff;transition:.2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--kion-gold);box-shadow:0 0 0 3px rgba(201,169,110,0.15)}
+.form-group textarea{min-height:80px;resize:vertical}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row .form-group{flex:1;min-width:140px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 22px;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;transition:.2s;width:100%;letter-spacing:.3px}
+.btn-primary{background:var(--kion-gold);color:var(--kion-black)}
+.btn-primary:active{transform:scale(.97)}
+.btn-secondary{background:var(--kion-dark);color:#fff}
+.btn-success{background:var(--success);color:#fff}
+.btn-outline{background:#fff;color:var(--kion-black);border:2px solid var(--kion-gold)}
+.btn-sm{padding:10px 16px;font-size:13px;width:auto}
+.gps-box{background:#f0eeea;border-radius:10px;padding:12px;font-size:13px;font-family:monospace;color:var(--muted);text-align:center;border:1.5px dashed var(--border);cursor:pointer}
+.gps-box.has-coords{background:#eaf4e8;color:var(--success);font-weight:800;border-style:solid;border-color:var(--success)}
+.qual-options{display:flex;gap:10px}
+.qual-option{flex:1;padding:12px 8px;border:2px solid var(--border);border-radius:12px;text-align:center;font-size:13px;font-weight:800;cursor:pointer;transition:.2s;background:#fff}
+.qual-option.selected{border-color:var(--kion-gold);background:#fdf8ed;color:var(--kion-black);box-shadow:0 0 0 3px rgba(201,169,110,0.15)}
+.qual-option[data-val="جاهز"].selected{border-color:var(--success);background:#eaf4e8;color:var(--success)}
+.qual-option[data-val="مستقبلي"].selected{border-color:var(--warn);background:#fff4e6;color:var(--warn)}
+.star-rating{display:flex;gap:6px;flex-direction:row-reverse;justify-content:center}
+.star-rating .star{font-size:32px;color:#ddd;cursor:pointer;transition:.15s}
+.star-rating .star:hover,.star-rating .star.active{color:var(--kion-gold)}
+.client-item{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow);border-right:5px solid var(--border);position:relative}
+.client-item.جاهز{border-right-color:var(--success)}
+.client-item.مستقبلي{border-right-color:var(--warn)}
+.client-item.متابعة{border-right-color:var(--muted)}
+.client-header{display:flex;justify-content:space-between;align-items:start;margin-bottom:8px}
+.client-name{font-size:16px;font-weight:800;color:var(--kion-black)}
+.client-badge{font-size:12px;padding:4px 12px;border-radius:20px;font-weight:800;background:#f0eeea}
+.client-badge.جاهز{background:#eaf4e8;color:var(--success)}
+.client-badge.مستقبلي{background:#fff4e6;color:var(--warn)}
+.client-badge.متابعة{background:#f0eeea;color:var(--muted)}
+.client-meta{font-size:13px;color:var(--muted);margin-top:5px}
+.client-stars{color:var(--kion-gold);font-size:15px;margin-top:4px}
+.client-actions{display:flex;gap:8px;margin-top:12px;align-items:center;justify-content:space-between}
+.sync-status{font-size:12px;font-weight:800;padding:4px 8px;border-radius:6px;display:inline-flex;align-items:center;gap:4px}
+.sync-status.synced{background:#eaf4e8;color:var(--success)}
+.sync-status.pending{background:#fff4e6;color:var(--warn)}
+.filter-bar{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto}
+.filter-chip{padding:10px 16px;border-radius:24px;font-size:13px;font-weight:700;background:#fff;border:1.5px solid var(--border);cursor:pointer;white-space:nowrap;transition:.2s}
+.filter-chip.active{background:var(--kion-black);color:var(--kion-gold);border-color:var(--kion-black)}
+.search-box{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;margin-bottom:16px;background:#fff}
+.search-box:focus{outline:none;border-color:var(--kion-gold)}
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
+.stat-card{background:var(--card);border-radius:14px;padding:18px;text-align:center;box-shadow:var(--shadow);border:1px solid var(--border)}
+.stat-value{font-size:32px;font-weight:900;color:var(--kion-black)}
+.stat-label{font-size:13px;color:var(--muted);margin-top:6px;font-weight:600}
+.stat-card.accent .stat-value{color:var(--kion-gold)}
+.stat-card.success .stat-value{color:var(--success)}
+.rep-table{width:100%;border-collapse:collapse;font-size:14px}
+.rep-table th{background:var(--kion-black);color:var(--kion-gold);padding:12px;text-align:right;font-size:13px;font-weight:800}
+.rep-table td{padding:12px;border-bottom:1px solid var(--border)}
+.rep-table tr:nth-child(even){background:#faf9f7}
+.catalog-cat{font-size:14px;font-weight:800;color:var(--kion-black);margin:18px 0 12px;padding-bottom:8px;border-bottom:3px solid var(--kion-gold);display:inline-block;letter-spacing:.5px}
+.product-item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f0eeea}
+.product-name{font-size:14px;font-weight:700;color:var(--kion-black)}
+.product-code{font-size:12px;color:var(--muted);margin-top:2px}
+.product-price{text-align:left}
+.product-price .white{font-size:14px;font-weight:800;color:var(--kion-black)}
+.product-price .color{font-size:13px;color:var(--muted)}
+.empty-state{text-align:center;padding:50px 20px;color:var(--muted)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--kion-black);color:var(--kion-gold);padding:14px 28px;border-radius:12px;font-size:14px;font-weight:800;box-shadow:var(--shadow);transition:.3s;z-index:200;opacity:0}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.export-bar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+
+/* Handover Form Styles */
+.handover-paper{background:#fff;border-radius:14px;padding:28px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:16px}
+.handover-header{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid var(--kion-black);padding-bottom:14px;margin-bottom:20px}
+.handover-header h2{font-size:18px;font-weight:900;color:var(--kion-black)}
+.handover-header .logo{font-size:24px;font-weight:900;color:var(--kion-gold);letter-spacing:2px}
+.ho-info{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.ho-info .box{flex:1;min-width:120px;background:var(--kion-light);padding:10px 14px;border-radius:8px;border:1px solid var(--border)}
+.ho-info .box label{font-size:11px;font-weight:800;color:var(--muted);display:block;margin-bottom:3px}
+.ho-info .box .val{font-size:14px;font-weight:700;color:var(--kion-black)}
+.ho-section{margin-bottom:18px}
+.ho-section-title{font-size:13px;font-weight:800;color:var(--kion-black);margin-bottom:10px;padding-bottom:5px;border-bottom:2px solid var(--kion-gold);display:inline-block}
+.ho-field{margin-bottom:8px}
+.ho-field label{font-size:12px;font-weight:700;color:var(--muted);display:block;margin-bottom:3px}
+.ho-field .val{background:#faf9f7;border:1.5px solid var(--border);border-radius:6px;padding:8px 12px;font-size:14px;min-height:36px}
+.ho-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ho-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.ho-sigs{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px;border-top:2px solid var(--border);padding-top:20px}
+.ho-sig{text-align:center}
+.ho-sig h4{font-size:12px;font-weight:800;color:var(--muted);margin-bottom:20px}
+.ho-sig .line{border-bottom:1.5px solid var(--text);height:40px;margin-bottom:6px}
+.ho-sig .name{font-size:13px;font-weight:700}
+.ho-sig .date{font-size:11px;color:var(--muted);margin-top:3px}
+.ho-check{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px}
+.ho-check .cb{width:16px;height:16px;border:2px solid var(--border);border-radius:4px;display:inline-block}
+.ho-confirm-box{background:var(--kion-light);padding:16px;border-radius:10px;border:2px solid var(--kion-gold);margin-top:14px}
+.ho-select{background:var(--kion-light);padding:14px;border-radius:10px;margin-bottom:16px;border:1.5px solid var(--border)}
+.ho-select label{font-size:13px;font-weight:700;color:var(--muted);display:block;margin-bottom:8px}
+.ho-select select{width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:#fff}
+.print-btn-ho{background:var(--kion-black);color:var(--kion-gold);border:none;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;margin-top:10px}
+.print-btn-ho:hover{background:#000}
+@media(min-width:600px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:500px){.ho-grid-2,.ho-grid-3{grid-template-columns:1fr}.ho-sigs{grid-template-columns:1fr}}
+@media print{.nav-tabs,.toast,.print-btn-ho{display:none}.page{padding:0}.handover-paper{box-shadow:none;border:none}}
+</style>
+</head>
+<body>
+<header class="app-header">
+<h1>⚡ KION Field Survey</h1>
+<div class="subtitle">تغذية بيانات الـ CRM للمبيعات الميدانية</div>
+</header>
+<nav class="nav-tabs">
+<div class="nav-tab active" onclick="showPage('form', this)">📝 تسجيل</div>
+<div class="nav-tab" onclick="showPage('list', this)">📋 العملاء</div>
+<div class="nav-tab" onclick="showPage('dash', this)">📊 التحكم</div>
+<div class="nav-tab" onclick="showPage('catalog', this)">🔌 الكتالوج</div>
+<div class="nav-tab" onclick="showPage('handover', this)">📄 التسليم</div>
+</nav>
+
+<!-- FORM PAGE -->
+<div id="page-form" class="page active">
+<div class="card">
+<div class="card-title"><span class="icon">👤</span> بيانات المندوب</div>
+<div class="form-group"><label>اسم المندوب *</label><input type="text" id="repName" placeholder="أدخل اسمك"></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">🏢</span> بيانات العميل</div>
+<div class="form-group"><label>اسم العميل / المحل *</label><input type="text" id="clientName" placeholder="مثال: محل الأمانة للكهرباء"></div>
+<div class="row">
+<div class="form-group"><label>نوع النشاط *</label><select id="clientType"><option value="">اختر...</option><option value="مقاول">مقاول</option><option value="مهندس">مهندس</option><option value="فني">فني</option><option value="محل تجاري">محل تجاري</option><option value="مكتب هندسي">مكتب هندسي</option></select></div>
+<div class="form-group"><label>التخصص</label><input type="text" id="specialty" placeholder="مثال: كهرباء مباني"></div>
+</div>
+<div class="row">
+<div class="form-group"><label>رقم الهاتف</label><input type="tel" id="phone" placeholder="01xxxxxxxx"></div>
+<div class="form-group"><label>المنطقة *</label><input type="text" id="area" placeholder="مثال: كفر الشيخ - سيدي سالم"></div>
+</div>
+<div class="form-group"><label>العنوان التفصيلي</label><input type="text" id="address" placeholder="شارع / علامة مميزة"></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">📍</span> الموقع الجغرافي (اختياري)</div>
+<div class="gps-box" id="gpsBox" onclick="getGPS()">اضغط لتحديد الإحداثيات (للتوثيق)</div>
+</div>
+
+<div class="card">
+<div class="card-title"><span class="icon">📅</span> خطة المتابعة والزيارة القادمة</div>
+<div class="row">
+<div class="form-group">
+<label>تاريخ الزيارة القادمة *</label>
+<input type="date" id="nextVisitDate">
+</div>
+<div class="form-group">
+<label>نوع الإجراء المطلوب *</label>
+<select id="nextAction">
+<option value="">اختر الإجراء...</option>
+<option value="تسليم عينات مجانية">تسليم عينات مجانية</option>
+<option value="إرسال عرض سعر رسمي">إرسال عرض سعر رسمي</option>
+<option value="زيارة متابعة ثانية">زيارة متابعة ثانية</option>
+<option value="توقيع عقد / استلام طلبية">توقيع عقد / استلام طلبية</option>
+<option value="متابعة هاتفية">متابعة هاتفية</option>
+</select>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-title"><span class="icon">⚡</span> الاستخبارات المنافسية</div>
+<div class="row">
+<div class="form-group"><label>اسم المنافس</label><input type="text" id="compName" placeholder="مثال: فينوس"></div>
+<div class="form-group"><label>السعر المنافس</label><input type="text" id="compPrice" placeholder="مثال: 45 جنيه"></div>
+</div>
+<div class="form-group"><label>نقطة ضعف المنافس *</label><input type="text" id="compWeak" placeholder="مثال: لا يوجد ضمان / جودة منخفضة"></div>
+<div class="form-group"><label>ملاحظات إضافية</label><textarea id="notes" placeholder="أي ملاحظات عن المنافس أو العميل..."></textarea></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">⭐</span> تقييم العميل</div>
+<div class="star-rating" id="starRating">
+<span class="star" data-val="5" onclick="setStar(5)">★</span>
+<span class="star" data-val="4" onclick="setStar(4)">★</span>
+<span class="star" data-val="3" onclick="setStar(3)">★</span>
+<span class="star" data-val="2" onclick="setStar(2)">★</span>
+<span class="star" data-val="1" onclick="setStar(1)">★</span>
+</div>
+<div style="text-align:center;font-size:13px;color:var(--muted);margin-top:8px" id="starLabel">اضغط على النجوم للتقييم</div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">🎯</span> تصنيف التأهيل</div>
+<div class="qual-options">
+<div class="qual-option" data-val="جاهز" onclick="setQual(this)">🟢 جاهز للشراء</div>
+<div class="qual-option" data-val="مستقبلي" onclick="setQual(this)">🟠 مشروع مستقبلي</div>
+<div class="qual-option" data-val="متابعة" onclick="setQual(this)">⚪ يحتاج متابعة</div>
+</div>
+</div>
+<button class="btn btn-primary" id="saveBtn" onclick="saveClient()">💾 حفظ وإرسال للربط السحابي</button>
+<div style="margin-top:12px">
+<button class="btn btn-outline" onclick="addDemoClient()">➕ إضافة عميل تجريبي للاختبار</button>
+</div>
+</div>
+
+<!-- LIST PAGE -->
+<div id="page-list" class="page">
+<div class="export-bar">
+<button class="btn btn-primary btn-sm" onclick="syncPending()">🔄 مزامنة المعلقات</button>
+<button class="btn btn-success btn-sm" onclick="exportCSV()">📥 تصدير CSV</button>
+<button class="btn btn-secondary btn-sm" onclick="clearAll()">🗑️ مسح الكل</button>
+</div>
+<input type="text" class="search-box" id="searchBox" placeholder="🔍 بحث باسم العميل أو المنطقة..." oninput="renderList()">
+<div class="filter-bar">
+<div class="filter-chip active" onclick="setFilter('all',this)">الكل</div>
+<div class="filter-chip" onclick="setFilter('جاهز',this)">جاهز</div>
+<div class="filter-chip" onclick="setFilter('مستقبلي',this)">مستقبلي</div>
+<div class="filter-chip" onclick="setFilter('متابعة',this)">متابعة</div>
+</div>
+<div id="clientsList"></div>
+</div>
+
+<!-- DASHBOARD PAGE -->
+<div id="page-dash" class="page">
+<div class="stats-grid">
+<div class="stat-card"><div class="stat-value" id="dTotal">0</div><div class="stat-label">إجمالي العملاء</div></div>
+<div class="stat-card accent"><div class="stat-value" id="dReady">0</div><div class="stat-label">جاهز للشراء</div></div>
+<div class="stat-card success"><div class="stat-value" id="dFuture">0</div><div class="stat-label">مشروع مستقبلي</div></div>
+<div class="stat-card"><div class="stat-value" id="dAreas">0</div><div class="stat-label">مناطق مغطاة</div></div>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">👥</span> إنتاجية المندوبين</div>
+<table class="rep-table">
+<thead><tr><th>المندوب</th><th>العملاء</th><th>جاهز</th><th>مستقبلي</th></tr></thead>
+<tbody id="repTable"></tbody>
+</table>
+</div>
+<div class="card">
+<div class="card-title"><span class="icon">📍</span> توزيع المناطق</div>
+<div id="areaList" style="font-size:14px"></div>
+</div>
+</div>
+
+<!-- CATALOG PAGE -->
+<div id="page-catalog" class="page">
+<input type="text" class="search-box" id="catSearch" placeholder="🔍 بحث في الكتالوج..." oninput="renderCatalog()">
+<div id="catalogContent"></div>
+</div>
+
+<!-- HANDOVER PAGE -->
+<div id="page-handover" class="page">
+<div class="handover-paper">
+<div class="handover-header">
+<div><h2>نموذج تسليم عميل مؤهل</h2><div style="font-size:12px;color:var(--muted)">Handover Form — من التسويق الميداني إلى المبيعات</div></div>
+<div class="logo">KION</div>
+</div>
+<div class="ho-select">
+<label>🔍 اختر عميلاً لتوليد نموذج التسليم:</label>
+<select id="hoSelect" onchange="loadHandover(this.value)">
+<option value="">-- اختر عميلاً --</option>
+</select>
+</div>
+<div id="hoContent" style="display:none">
+<div class="ho-info">
+<div class="box"><label>رقم التسليم</label><div class="val" id="hoId">—</div></div>
+<div class="box"><label>تاريخ التسجيل</label><div class="val" id="hoDate">—</div></div>
+<div class="box"><label>تاريخ التسليم</label><div class="val" id="hoToday">—</div></div>
+<div class="box"><label>التصنيف</label><div class="val" id="hoQualBadge">—</div></div>
+</div>
+<div class="ho-section">
+<div class="ho-section-title">👤 بيانات العميل</div>
+<div class="ho-grid-2">
+<div class="ho-field"><label>اسم العميل</label><div class="val" id="hoName">—</div></div>
+<div class="ho-field"><label>نوع النشاط</label><div class="val" id="hoType">—</div></div>
+<div class="ho-field"><label>التخصص</label><div class="val" id="hoSpec">—</div></div>
+<div class="ho-field"><label>الهاتف</label><div class="val" id="hoPhone">—</div></div>
+<div class="ho-field"><label>المنطقة</label><div class="val" id="hoArea">—</div></div>
+<div class="ho-field"><label>العنوان</label><div class="val" id="hoAddress">—</div></div>
+</div>
+<div class="ho-field" style="margin-top:8px"><label>GPS</label><div class="val" id="hoGPS">—</div></div>
+</div>
+
+<div class="ho-section">
+<div class="ho-section-title">📅 المتابعة المجدولة</div>
+<div class="ho-grid-2">
+<div class="ho-field"><label>تاريخ الزيارة القادمة</label><div class="val" id="hoNextVisitDate">—</div></div>
+<div class="ho-field"><label>الإجراء المطلوب</label><div class="val" id="hoNextAction">—</div></div>
+</div>
+</div>
+
+<div class="ho-section">
+<div class="ho-section-title">⚡ الاستخبارات المنافسية</div>
+<div class="ho-grid-3">
+<div class="ho-field"><label>المنافس</label><div class="val" id="hoComp">—</div></div>
+<div class="ho-field"><label>السعر</label><div class="val" id="hoCompPrice">—</div></div>
+<div class="ho-field"><label>نقطة الضعف</label><div class="val" id="hoCompWeak">—</div></div>
+</div>
+<div class="ho-field" style="margin-top:8px"><label>ملاحظات المندوب</label><div class="val" id="hoNotes">—</div></div>
+</div>
+<div class="ho-section">
+<div class="ho-section-title">🎯 التقييم والتصنيف</div>
+<div class="ho-grid-2">
+<div class="ho-field"><label>التقييم</label><div class="val" id="hoRating">—</div></div>
+<div class="ho-field"><label>التصنيف</label><div class="val" id="hoQual">—</div></div>
+</div>
+</div>
+
+<div class="ho-confirm-box">
+<div class="ho-section-title" style="border-bottom-color:var(--kion-black);margin-bottom:10px">✅ تأكيد استلام المبيعات</div>
+<div class="ho-check"><span class="cb"></span> تم استلام بيانات العميل كاملة</div>
+<div class="ho-check"><span class="cb"></span> تم التواصل مع العميل خلال 24 ساعة</div>
+<div class="ho-check"><span class="cb"></span> العميل جاهز للمتابعة / الصفقة مؤكدة</div>
+<div class="ho-check"><span class="cb"></span> العميل يحتاج متابعة لاحقة (حدد التاريخ: _______)</div>
+<div class="ho-field" style="margin-top:12px"><label>ملاحظات مندوب المبيعات</label><div class="val" style="min-height:50px;background:#fff">&nbsp;</div></div>
+</div>
+<div class="ho-sigs">
+<div class="ho-sig"><h4>🎯 مندوب التسويق (المُسلّم)</h4><div class="line"></div><div class="name" id="hoSigRep">________________</div><div class="date" id="hoSigDate">التاريخ: ___/___/______</div></div>
+<div class="ho-sig"><h4>💼 مندوب المبيعات (المستلم)</h4><div class="line"></div><div class="name">________________</div><div class="date">التاريخ: ___/___/______</div></div>
+</div>
+<div style="margin-top:20px;padding-top:12px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);text-align:center">هذا النموذج وثيقة رسمية تربط بين قسم التسويق الميداني وقسم المبيعات — يُحفظ في ملف العميل لمدة لا تقل عن ٣ سنوات.</div>
+<button class="print-btn-ho" onclick="window.print()">🖨️ طباعة / حفظ PDF</button>
+</div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// رابط المزامنة السحابية الخاص بك
+const CRM_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycby-QNP62T4h3kz3SF26emve79cRTgZZaNa0ttPz-VU4mWyyCA7sx9cnohuxph2X7Qp3Gw/exec'; 
+
+let clients=JSON.parse(localStorage.getItem('kion_clients_v2')||'[]');
+let currentQual='';
+let currentGPS='';
+let currentFilter='all';
+let currentRating=0;
+
+const products=[
+{cat:'مفاتيح',items:[
+{code:'K-001/002',name:'مفتاح 16 امبير (1-2 gang)',w:37.87,c:44.63},
+{code:'K-003/004',name:'مفتاح ديفاتير (3-4 gang)',w:64.92,c:81.15},
+{code:'K-005/006',name:'مفتاح مجوز (5-6 gang)',w:101.44,c:121.73},
+{code:'K-005/006',name:'مفتاح ديجاتوري',w:128.49,c:155.54},
+{code:'K-008',name:'مفتاح سخان 20 امبير',w:175.83,c:209.65},
+{code:'K-009',name:'مفتاح سخان 20 امبير عريض',w:202.88,c:243.46},
+{code:'K-007',name:'زر جرس مفرد',w:67.63,c:81.15},
+{code:'K-007',name:'زر جرس عريض',w:108.2,c:128.49},
+{code:'K-018',name:'مفتاح ستارة',w:169.07,c:202.88},
+{code:'K-020/021',name:'ديمر مروحة',w:243.46,c:284.04},
+{code:'K-008',name:'مفتاح تكييف 45 امبير',w:304.33,c:304.33}
+]},
+{cat:'بريزات',items:[
+{code:'K-010',name:'بريزة امريكي 16 امبير',w:37.87,c:44.63},
+{code:'K-010/011',name:'بريزة امريكي 16 امبير بالارضي',w:47.34,c:60.87},
+{code:'K-013',name:'بريزة ام كي',w:114.97,c:135.26},
+{code:'K-012',name:'بريزة 16 امبير شوكو',w:114.97,c:135.26},
+{code:'K-015',name:'بريزة تليفون 4 طرف',w:87.92,c:108.2},
+{code:'K-015/016',name:'بريزة نت كات 6',w:148.78,c:175.83},
+{code:'K-014',name:'بريزة ستالايت',w:47.34,c:60.87}
+]},
+{cat:'ملحقات',items:[
+{code:'K-019',name:'يو اس بي + تايب سي',w:534.26,c:635.7},
+{code:'K-017',name:'كشاف طوارئ',w:392.24,c:392.24},
+{code:'K-022',name:'سدادة',w:10.82,c:13.53},
+{code:'K-023',name:'نص سدادة',w:8.12,c:10.82},
+{code:'K-025',name:'جرس قطعة',w:324.61,c:392.24},
+{code:'K-024',name:'حساس حركة',w:628.94,c:683.04},
+{code:'K-026',name:'وش',w:29.76,c:40.58},
+{code:'K-027',name:'شاسيه معدن',w:27.05,c:27.05},
+{code:'K-026',name:'وش + شاسيه',w:56.78,c:67.63},
+{code:'K-026',name:'وش ووتر بروف',w:242.44,c:null},
+{code:'K-022',name:'وش ارو بنى',w:null,c:40.58}
+]},
+{cat:'سمارت',items:[
+{code:'K-SMART-W',name:'مفتاح سمارت ابيض',w:1020.8,c:null},
+{code:'K-SMART-B',name:'مفتاح سمارت اسود',w:null,c:1060.36},
+{code:'K-SMART-F',name:'مفتاح سمارت بالوش والشاسيه',w:null,c:1158}
+]},
+{cat:'قواطع التيار',items:[
+{code:'MCB-10',name:'قاطع تيار 10 امبير احادى',w:166.14,c:null},
+{code:'MCB-16',name:'قاطع تيار 16 امبير احادى',w:166.14,c:null},
+{code:'MCB-20',name:'قاطع تيار 20 امبير احادى',w:166.14,c:null},
+{code:'MCB-25',name:'قاطع تيار 25 امبير احادى',w:166.14,c:null},
+{code:'MCB-32',name:'قاطع تيار 32 امبير احادى',w:166.14,c:null},
+{code:'MCB-40',name:'قاطع تيار 40 امبير احادى',w:166.14,c:null},
+{code:'MCB-63',name:'قاطع تيار 63 امبير احادى',w:184.89,c:null},
+{code:'MCB-25D',name:'قاطع تيار 25 امبير ثنائى',w:301.46,c:null},
+{code:'MCB-32D',name:'قاطع تيار 32 امبير ثنائى',w:301.46,c:null},
+{code:'MCB-40D',name:'قاطع تيار 40 امبير ثنائى',w:314.85,c:null},
+{code:'MCB-63D',name:'قاطع تيار 63 امبير ثنائى',w:334.95,c:null},
+{code:'MCB-25T',name:'قاطع تيار 25 امبير ثلاثى',w:482.33,c:null},
+{code:'MCB-32T',name:'قاطع تيار 32 امبير ثلاثى',w:482.33,c:null},
+{code:'MCB-40T',name:'قاطع تيار 40 امبير ثلاثى',w:502.43,c:null},
+{code:'MCB-63T',name:'قاطع تيار 63 امبير ثلاثى',w:509.12,c:null},
+{code:'GEN-100',name:'قاطع مولد 100 امبير',w:2545.62,c:null},
+{code:'GEN-160',name:'قاطع مولد 160 امبير',w:3483.48,c:null},
+{code:'GEN-200',name:'قاطع مولد 200 امبير',w:4689.3,c:null},
+{code:'GEN-250',name:'قاطع مولد 250 امبير',w:4689.3,c:null},
+{code:'GEN-400',name:'قاطع مولد 400 امبير',w:5761.14,c:null},
+{code:'GEN-630',name:'قاطع مولد 630 امبير',w:10048.5,c:null},
+{code:'ELD-40D',name:'قاطع تسريب ارضى 40 امبير ثنائى',w:1272.81,c:null},
+{code:'ELD-40Q',name:'قاطع تسريب ارضى 40 امبير رباعى',w:2411.64,c:null}
+]}
+];
+
+function showPage(id, tabEl){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  
+  const targetPage = document.getElementById('page-'+id);
+  if(targetPage) targetPage.classList.add('active');
+  
+  if(tabEl){
+    tabEl.classList.add('active');
+  } else {
+    const defaultTab = document.querySelector(`.nav-tab[onclick*="'${id}'"]`);
+    if(defaultTab) defaultTab.classList.add('active');
+  }
+  
+  if(id==='list')renderList();
+  if(id==='dash')renderDash();
+  if(id==='catalog')renderCatalog();
+  if(id==='handover')renderHandoverSelect();
+}
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
+
+function getGPS(){
+const box=document.getElementById('gpsBox');
+box.textContent='جاري التحديد...';
+if(navigator.geolocation){
+navigator.geolocation.getCurrentPosition(p=>{
+currentGPS=p.coords.latitude.toFixed(6)+', '+p.coords.longitude.toFixed(6);
+box.textContent='📍 '+currentGPS;box.classList.add('has-coords');toast('تم تحديد الموقع بنجاح');
+},()=>{box.textContent='⚠️ لم يتم السماح بالموقع - يمكن الإكمال بدون إحداثيات';});
+}else{box.textContent='⚠️ الجهاز لا يدعم GPS';}
+}
+
+function setStar(n){
+currentRating=n;
+document.querySelectorAll('#starRating .star').forEach(s=>{
+const v=parseInt(s.dataset.val);
+if(v<=n){s.classList.add('active')}else{s.classList.remove('active')}
+});
+const labels=['ضعيف','مقبول','جيد','جيد جداً','ممتاز'];
+document.getElementById('starLabel').textContent=labels[n-1]+' ('+n+'/5)';
+}
+
+function setQual(el){
+document.querySelectorAll('.qual-option').forEach(o=>o.classList.remove('selected'));
+el.classList.add('selected');currentQual=el.dataset.val;
+}
+
+function saveClient(){
+const rep=document.getElementById('repName').value.trim();
+const name=document.getElementById('clientName').value.trim();
+const type=document.getElementById('clientType').value;
+const area=document.getElementById('area').value.trim();
+const nextVisitDate=document.getElementById('nextVisitDate').value;
+const nextAction=document.getElementById('nextAction').value;
+
+if(!rep||!name||!type||!area){toast('❌ أكمل الحقول الإلزامية الأساسية');return}
+if(!nextVisitDate||!nextAction){toast('❌ حدد تاريخ الزيارة القادمة ونوع الإجراء');return}
+if(!currentQual){toast('❌ اختر تصنيف التأهيل');return}
+
+const btn = document.getElementById('saveBtn');
+btn.disabled = true;
+btn.innerHTML = '⌛ جاري الإرسال للسحابة...';
+
+const client={
+id:Date.now(),rep,name,type,specialty:document.getElementById('specialty').value,
+phone:document.getElementById('phone').value,area,address:document.getElementById('address').value,
+gps:currentGPS || 'لم يتم التحديد',
+nextVisitDate,nextAction,
+compName:document.getElementById('compName').value,
+compPrice:document.getElementById('compPrice').value,compWeak:document.getElementById('compWeak').value,
+notes:document.getElementById('notes').value,qual:currentQual,rating:currentRating,date:new Date().toLocaleString('ar-EG'),
+synced: false
+};
+
+if(CRM_WEBHOOK_URL !== '') {
+    fetch(CRM_WEBHOOK_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(client)
+    }).then(() => {
+        client.synced = true;
+        finishSave(client, '✅ تم الحفظ الميداني وتغذية السحابة بنجاح');
+    }).catch(() => {
+        finishSave(client, '⚠️ تم الحفظ محلياً: لا يوجد اتصال لرفع البيانات للسحابة');
+    });
+} else {
+    finishSave(client, '✅ تم الحفظ محلياً (لم يتم تفعيل الرابط السحابي بعد)');
+}
+
+function finishSave(c, msg){
+    clients.push(c);
+    localStorage.setItem('kion_clients_v2',JSON.stringify(clients));
+    btn.disabled = false;
+    btn.innerHTML = '💾 حفظ وإرسال للربط السحابي';
+    resetForm();
+    toast(msg);
+}
+}
+
+function syncPending(){
+    let pending = clients.filter(c => !c.synced);
+    if(pending.length === 0){toast('✅ جميع البيانات متزامنة بالفعل'); return;}
+    if(CRM_WEBHOOK_URL === ''){toast('⚠️ الرابط السحابي غير متوفر في الكود'); return;}
+    
+    toast('⌛ جاري مزامنة ' + pending.length + ' ملفات...');
+    
+    let promises = pending.map(c => {
+        return fetch(CRM_WEBHOOK_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(c)
+        }).then(() => {
+            c.synced = true;
+        });
+    });
+
+    Promise.all(promises).then(() => {
+        localStorage.setItem('kion_clients_v2',JSON.stringify(clients));
+        renderList();
+        toast('✅ تمت مزامنة جميع البيانات مع السحابة بنجاح');
+    }).catch(()=>{
+        toast('⚠️ فشل في الاتصال بالإنترنت أثناء المزامنة');
+    });
+}
+
+function resetForm(){
+['clientName','specialty','phone','area','address','nextVisitDate','nextAction','compName','compPrice','compWeak','notes'].forEach(id=>document.getElementById(id).value='');
+currentGPS='';currentQual='';currentRating=0;
+document.getElementById('gpsBox').textContent='اضغط لتحديد الإحداثيات (للتوثيق)';
+document.getElementById('gpsBox').classList.remove('has-coords');
+document.querySelectorAll('.qual-option').forEach(o=>o.classList.remove('selected'));
+document.querySelectorAll('#starRating .star').forEach(s=>s.classList.remove('active'));
+document.getElementById('starLabel').textContent='اضغط على النجوم للتقييم';
+}
+
+function addDemoClient(){
+const demo={
+id:Date.now(),rep:'أحمد عبدالفتاح',name:'محل الأمانة للكهرباء',type:'محل تجاري',specialty:'أدوات كهربائية',
+phone:'01012345678',area:'كفر الشيخ - سيدي سالم',address:'شارع مصطفى النحاس، بجوار بنك CIB',
+gps:'31.1107, 30.9388',
+nextVisitDate:'2026-08-01',nextAction:'تسليم عينات مجانية',
+compName:'فينوس',compPrice:'52 جنيه',compWeak:'لا يوجد ضمان بعد البيع',
+notes:'صاحب المحل مهتم بالجودة ويسأل عن KION باستمرار. يشتري 200-300 قطعة شهرياً.',
+qual:'جاهز',rating:5,date:new Date().toLocaleString('ar-EG'), synced: false
+};
+clients.push(demo);localStorage.setItem('kion_clients_v2',JSON.stringify(clients));
+toast('✅ تم إضافة عميل تجريبي');
+renderList();renderDash();renderHandoverSelect();
+}
+
+function setFilter(f,el){
+currentFilter=f;
+document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+el.classList.add('active');renderList();
+}
+
+function renderList(){
+const q=document.getElementById('searchBox').value.trim().toLowerCase();
+let list=clients.filter(c=>{
+const matchFilter=currentFilter==='all'||c.qual===currentFilter;
+const matchSearch=!q||c.name.toLowerCase().includes(q)||c.area.toLowerCase().includes(q)||c.type.toLowerCase().includes(q);
+return matchFilter&&matchSearch;
+});
+list=list.sort((a,b)=>b.id-a.id);
+const container=document.getElementById('clientsList');
+if(!list.length){container.innerHTML='<div class="empty-state"><div style="font-size:48px">📭</div><div>لا يوجد عملاء</div></div>';return}
+container.innerHTML=list.map(c=>{
+const stars=c.rating?'⭐'.repeat(c.rating)+'☆'.repeat(5-c.rating):'—';
+const syncBadge = c.synced ? '<span class="sync-status synced">☁️ متزامن مع السحابة</span>' : '<span class="sync-status pending">⏳ معلق (انتظار مزامنة)</span>';
+
+return '<div class="client-item '+c.qual+'"><div class="client-header"><div class="client-name">'+c.name+'</div><div class="client-badge '+c.qual+'">'+c.qual+'</div></div><div class="client-meta">'+c.type+' · '+c.area+' · '+c.date+'</div><div class="client-meta">👤 '+c.rep+' · 📍 '+(c.gps||'لم يتم تحديد الموقع')+'</div><div class="client-meta">📅 المتابعة: <b>'+(c.nextVisitDate||'غير محدد')+'</b> — '+(c.nextAction||'')+'</div><div class="client-stars">التقييم: '+stars+'</div>'+(c.compName?'<div class="client-meta">⚡ منافس: '+c.compName+' · ضعف: '+c.compWeak+'</div>':'')+'<div class="client-actions"><div>'+syncBadge+'</div><button class="btn btn-sm btn-secondary" onclick="deleteClient('+c.id+')">🗑️ حذف</button></div></div>';
+}).join('');
+}
+
+function deleteClient(id){if(!confirm('حذف هذا العميل؟'))return;clients=clients.filter(c=>c.id!==id);localStorage.setItem('kion_clients_v2',JSON.stringify(clients));renderList();renderDash();renderHandoverSelect();toast('تم الحذف')}
+
+function renderDash(){
+const total=clients.length;
+const ready=clients.filter(c=>c.qual==='جاهز').length;
+const future=clients.filter(c=>c.qual==='مستقبلي').length;
+const areas=[...new Set(clients.map(c=>c.area))].length;
+document.getElementById('dTotal').textContent=total;
+document.getElementById('dReady').textContent=ready;
+document.getElementById('dFuture').textContent=future;
+document.getElementById('dAreas').textContent=areas;
+const repStats={};
+clients.forEach(c=>{if(!repStats[c.rep])repStats[c.rep]={total:0,ready:0,future:0};repStats[c.rep].total++;if(c.qual==='جاهز')repStats[c.rep].ready++;if(c.qual==='مستقبلي')repStats[c.rep].future++;});
+document.getElementById('repTable').innerHTML=Object.entries(repStats).map(([r,s])=>'<tr><td>'+r+'</td><td>'+s.total+'</td><td>'+s.ready+'</td><td>'+s.future+'</td></tr>').join('')||'<tr><td colspan="4" style="text-align:center">لا بيانات</td></tr>';
+const areaCounts={};
+clients.forEach(c=>{areaCounts[c.area]=(areaCounts[c.area]||0)+1});
+document.getElementById('areaList').innerHTML=Object.entries(areaCounts).sort((a,b)=>b[1]-a[1]).map(([a,n])=>'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0eeea"><span>'+a+'</span><strong>'+n+'</strong></div>').join('')||'لا بيانات';
+}
+
+function renderCatalog(){
+const q=document.getElementById('catSearch').value.trim().toLowerCase();
+const container=document.getElementById('catalogContent');
+let html='';
+products.forEach(cat=>{
+const items=cat.items.filter(p=>!q||p.name.toLowerCase().includes(q)||p.code.toLowerCase().includes(q));
+if(!items.length)return;
+html+='<div class="catalog-cat">'+cat.cat+'</div>';
+html+=items.map(p=>{
+const w=p.w?'<div class="white">أبيض: '+p.w.toFixed(2)+' ج.م</div>':'';
+const c=p.c?'<div class="color">ألوان: '+p.c.toFixed(2)+' ج.م</div>':'';
+return '<div class="product-item"><div><div class="product-name">'+p.name+'</div><div class="product-code">'+p.code+'</div></div><div class="product-price">'+w+c+'</div></div>';
+}).join('');
+});
+container.innerHTML=html||'<div class="empty-state">لا توجد نتائج</div>';
+}
+
+function renderHandoverSelect(){
+const sel=document.getElementById('hoSelect');
+sel.innerHTML='<option value="">-- اختر عميلاً --</option>';
+if(!clients.length){sel.innerHTML='<option value="">لا يوجد عملاء — سجل عميلاً أولاً</option>';return}
+clients.sort((a,b)=>b.id-a.id).forEach(c=>{
+const opt=document.createElement('option');
+opt.value=c.id;
+opt.textContent=(c.qual==='جاهز'?'🟢':'')+(c.qual==='مستقبلي'?'🟠':'')+(c.qual==='متابعة'?'⚪':'')+' '+c.name+' — '+c.area;
+sel.appendChild(opt);
+});
+}
+
+function loadHandover(id){
+if(!id){document.getElementById('hoContent').style.display='none';return}
+const c=clients.find(x=>x.id==parseInt(id));
+if(!c)return;
+document.getElementById('hoContent').style.display='block';
+document.getElementById('hoId').textContent='HF-'+c.id;
+document.getElementById('hoDate').textContent=c.date.split(' ')[0];
+document.getElementById('hoToday').textContent=new Date().toLocaleDateString('ar-EG');
+document.getElementById('hoQualBadge').innerHTML='<span class="client-badge '+c.qual+'">'+c.qual+'</span>';
+['Name','Type','Spec','Phone','Area','Address'].forEach(k=>{
+document.getElementById('ho'+k).textContent=c[k.toLowerCase()]||'—';
+});
+document.getElementById('hoGPS').textContent=c.gps||'—';
+document.getElementById('hoNextVisitDate').textContent=c.nextVisitDate||'—';
+document.getElementById('hoNextAction').textContent=c.nextAction||'—';
+document.getElementById('hoComp').textContent=c.compName||'—';
+document.getElementById('hoCompPrice').textContent=c.compPrice||'—';
+document.getElementById('hoCompWeak').textContent=c.compWeak||'—';
+document.getElementById('hoNotes').textContent=c.notes||'—';
+document.getElementById('hoRating').innerHTML=c.rating?'<span class="stars">'+'★'.repeat(c.rating)+'☆'.repeat(5-c.rating)+'</span>':'—';
+document.getElementById('hoQual').innerHTML='<span class="client-badge '+c.qual+'">'+c.qual+'</span>';
+document.getElementById('hoSigRep').textContent=c.rep;
+document.getElementById('hoSigDate').textContent='التاريخ: '+new Date().toLocaleDateString('ar-EG');
+}
+
+function exportCSV(){
+if(!clients.length){toast('لا يوجد عملاء للتصدير');return}
+const headers=['id','date','rep','name','type','specialty','phone','area','address','gps','nextVisitDate','nextAction','qual','rating','compName','compPrice','compWeak','notes','synced'];
+const rows=clients.map(c=>headers.map(h=>{let v=c[h]||'';v=String(v).replace(/"/g,'""');if(v.includes(',')||v.includes('\n'))v='"'+v+'"';return v;}).join(','));
+const csv='\uFEFF'+headers.join(',')+'\n'+rows.join('\n');
+const blob=document.getElementById('a')||document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download='kion_clients_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+toast('✅ تم التصدير');
+}
+
+function clearAll(){if(!confirm('مسح جميع العملاء؟ لا يمكن التراجع.'))return;clients=[];localStorage.removeItem('kion_clients_v2');renderList();renderDash();renderHandoverSelect();toast('تم المسح')}
+
+renderCatalog();
+</script>
+</body>
+</html>
