@@ -138,6 +138,7 @@ body{background:var(--kion-light);color:var(--text);line-height:1.5;overflow-x:h
 @media(max-width:500px){.ho-grid-2,.ho-grid-3{grid-template-columns:1fr}.ho-sigs{grid-template-columns:1fr}}
 @media print{.nav-tabs,.toast,.print-btn-ho,.sync-btn,.offline-banner,.login-overlay{display:none}.page{padding:0}.handover-paper{box-shadow:none;border:none}}
 </style>
+<base target="_blank">
 </head>
 <body>
 <div class="offline-banner" id="offlineBanner">⚠️ أنت غير متصل بالإنترنت — البيانات تُحفظ محلياً حتى عودة الاتصال</div>
@@ -350,7 +351,7 @@ body{background:var(--kion-light);color:var(--text);line-height:1.5;overflow-x:h
 // ═══════════════════════════════════════════════════════════════════════════════
 // ⚠️  ضع رابط Google Apps Script Web App هنا  ⚠️
 // ═══════════════════════════════════════════════════════════════════════════════
-const SHEETS_API_URL = 'PASTE_YOUR_URL_HERE';
+const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbyaKU95udf5hdzivBB9_0ACxmHSeDh4y5LFYkSnKzrrreycUlzimyik8SUFT2MzaTedSA/exec';
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // ═══════════════════════════════════════════════════════════
@@ -641,7 +642,7 @@ function saveClient() {
     localStorage.setItem('kion_clients_v2', JSON.stringify(clients));
 
     // 2. Try cloud sync
-    if (SHEETS_API_URL === 'PASTE_YOUR_URL_HERE') {
+    if (SHEETS_API_URL === 'https://script.google.com/macros/s/AKfycbyaKU95udf5hdzivBB9_0ACxmHSeDh4y5LFYkSnKzrrreycUlzimyik8SUFT2MzaTedSA/exec') {
         finishSave(client, '✅ تم الحفظ محلياً (لم يتم ربط Google Sheets بعد — انظر التعليمات في الكود)');
         return;
     }
@@ -686,7 +687,7 @@ function resetForm() {
 // SYNC
 // ═══════════════════════════════════════════════════════════
 function syncPending() {
-    if (SHEETS_API_URL === 'PASTE_YOUR_URL_HERE') {
+    if (SHEETS_API_URL === 'https://script.google.com/macros/s/AKfycbyaKU95udf5hdzivBB9_0ACxmHSeDh4y5LFYkSnKzrrreycUlzimyik8SUFT2MzaTedSA/exec') {
         toast('⚠️ لم يتم ربط Google Sheets بعد — اتبع خطوات التركيب في README');
         return;
     }
