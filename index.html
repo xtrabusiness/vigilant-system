@@ -887,4 +887,74 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
-<button onclick="saveClient()">حفظ العميل</button>
+function saveClient() {
+    const clientName = document.getElementById('clientName').value.trim();
+    const clientType = document.getElementById('clientType').value;
+    const area = document.getElementById('area').value.trim();
+    const nextVisitDate = document.getElementById('nextVisitDate').value;
+    const nextAction = document.getElementById('nextAction').value;
+
+    if (!clientName || !clientType || !area || !nextVisitDate || !nextAction) {
+        toast('❌ يرجى ملء الحقول الإجبارية (الاسم، النشاط، المنطقة، موعد وزيارة المتابعة)');
+        return;
+    }
+
+    const client = {
+        id: 'KION-' + Date.now(),
+        repName: currentRep,
+        repPhone: currentRepPhone,
+        name: clientName,
+        type: clientType,
+        specialty: document.getElementById('specialty').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        area: area,
+        address: document.getElementById('address').value.trim(),
+        gps: currentGPS || 'غير متاح',
+        nextVisitDate: nextVisitDate,
+        nextAction: nextAction,
+        compName: document.getElementById('compName').value.trim(),
+        compPrice: document.getElementById('compPrice').value.trim(),
+        compWeak: document.getElementById('compWeak').value.trim(),
+        notes: document.getElementById('notes').value.trim(),
+        rating: currentRating,
+        qual: currentQual || 'متابعة',
+        date: new Date().toISOString(),
+        synced: false
+    };
+
+    clients.unshift(client);
+    localStorage.setItem('kion_clients_v2', JSON.stringify(clients));
+    
+    toast('💾 تم الحفظ محلياً بنجاح');
+    resetForm();
+    sendToServer(client);
+}
+
+function sendToServer(client) {
+    if (!navigator.onLine) {
+        toast('⚠️ أنت غير متصل، سيتم المزامنة لاحقاً');
+        return;
+    }
+
+    const btn = document.getElementById('syncBtn');
+    if (btn) btn.classList.add('spin');
+
+    fetch(SHEETS_API_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(client)
+    })
+    .then(() => {
+        client.synced = true;
+        localStorage.setItem('kion_clients_v2', JSON.stringify(clients));
+        toast('☁️ تم إرسال البيانات إلى Google Sheets بنجاح');
+        if (btn) btn.classList.remove('spin');
+        renderList();
+    })
+    .catch(err => {
+        console.error('Sync error:', err);
+        toast('⚠️ فشل الإرسال الفوري، محفوظ محلياً');
+        if (btn) btn.classList.remove('spin');
+    });
+}
