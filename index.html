@@ -1,3 +1,4 @@
+<script>
 // ═══════════════════════════════════════════════════════════════════════════════
 // ⚠️ رابط Google Apps Script Web App ⚠️
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -275,7 +276,6 @@ function sendToServer(client) {
     const btn = document.getElementById('syncBtn');
     if (btn) btn.classList.add('spin');
 
-    // التأكد من وجود ID للعميل القديم إذا لم يكن موجوداً
     if (!client.id) {
         client.id = 'KION-' + Date.now();
     }
@@ -307,7 +307,6 @@ function syncPending() {
         return;
     }
 
-    // تصفية العملاء غير المزامنون أو الذين ليس لديهم ID لضمان معالجتهم
     const pendingClients = clients.filter(c => !c.synced || !c.id);
     if (pendingClients.length === 0) {
         toast('✅ جميع العملاء مسجلون ومزامنون مسبقاً');
@@ -574,3 +573,4 @@ function loadHandover(id) {
     setVal('hoSigRep', c.repName || currentRep || '—');
     setVal('hoSigDate', 'التاريخ: ' + new Date().toLocaleDateString('ar-EG'));
 }
+</script>
